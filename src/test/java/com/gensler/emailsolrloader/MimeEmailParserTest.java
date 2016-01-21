@@ -60,19 +60,13 @@ public class MimeEmailParserTest {
         expResult.setSender("Nicholas McKinney");
         expResult.setSubject("attachments");
         
-                StringBuilder sbMessage = new StringBuilder();
-                sbMessage.append("\r\n");
-                sbMessage.append("\r\n");
-                sbMessage.append("\r\n");
-                sbMessage.append("\r\n");
-                expResult.setMessage(sbMessage.toString());
-
         expResult.addRecipient_cc("Flora Pletman");
         expResult.addRecipient_cc("Erik Meister");
         expResult.addRecipient_cc("Eric Theis");
 
         expResult.addRecipient_to("Surendra Mathe");
         expResult.addRecipient_to("Gautam Gaind");
+
         
         Email result = instance.getEmail();
         assertEquals(expResult, result);
@@ -95,39 +89,8 @@ public class MimeEmailParserTest {
         expResult.setSender("Janie Beaman");
         expResult.setSubject("sorry");
         
-        StringBuilder sbMessage = new StringBuilder();
-        sbMessage.append("Would you please call mobile 213.407.2743\n");
-        sbMessage.append(" \n");
-        sbMessage.append("                   \n");
-        sbMessage.append("Janie Beaman \n");
-        sbMessage.append("Firmwide Marketing Manager\n");
-        sbMessage.append("+1 213.327.2922 Direct\n");
-        sbMessage.append("+1 213.407.2743 Mobile\n");
-        sbMessage.append("                   \n");
-        sbMessage.append("Gensler \n");
-        sbMessage.append("500 S. Figueroa Street\n");
-        sbMessage.append("Los Angeles, California 90071\n");
-        sbMessage.append("USA \n");
-        sbMessage.append("\n");
-        sbMessage.append("Gensler.com <http://www.gensler.com>  | Blog <http://www.gensleron.com>  |\n");
-        sbMessage.append("Facebook <http://www.facebook.com/GenslerDesign>  | Twitter\n");
-        sbMessage.append("<http://www.twitter.com/GenslerOnCities>  | YouTube\n");
-        sbMessage.append("<http://www.youtube.com/GenslerTV>\n");
-        sbMessage.append(" \n");
-        sbMessage.append("What¹s ahead for design and our clients?\n");
-        sbMessage.append("Find out here: Gensler  Design Forecast 2014\n");
-        sbMessage.append("<http://m.gensler.com/feature/gensler-design-forecast-2014>\n");
-        sbMessage.append(" \n"); 
-        sbMessage.append("\n");
-        sbMessage.append("\n");
-        expResult.setMessage(sbMessage.toString());
+        expResult.addRecipient_to("Eric Theis");
 
-        expResult.addRecipient_cc("Flora Pletman");
-        expResult.addRecipient_cc("Erik Meister");
-        expResult.addRecipient_cc("Eric Theis");
-
-        expResult.addRecipient_to("Surendra Mathe");
-        expResult.addRecipient_to("Gautam Gaind");
         expResult.setReceive_date(new Date(1427420801596L));
         
         Email result = instance.getEmail();

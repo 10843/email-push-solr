@@ -7,6 +7,7 @@ package com.gensler.emailsolrloader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -129,7 +130,10 @@ public class Email {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 19 * hash + (this.id != null ? this.id.hashCode() : 0);
+        hash = 11 * hash + Objects.hashCode(this.id);
+        hash = 11 * hash + Objects.hashCode(this.recipient_to);
+        hash = 11 * hash + Objects.hashCode(this.sender);
+        hash = 11 * hash + Objects.hashCode(this.subject);
         return hash;
     }
 
@@ -142,11 +146,21 @@ public class Email {
             return false;
         }
         final Email other = (Email) obj;
-        if ((this.id == null) ? (other.id != null) : !this.id.equals(other.id)) {
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        if (!Objects.equals(this.recipient_to, other.recipient_to)) {
+            return false;
+        }
+        if (!Objects.equals(this.sender, other.sender)) {
+            return false;
+        }
+        if (!Objects.equals(this.subject, other.subject)) {
             return false;
         }
         return true;
     }
+
 
     
 }

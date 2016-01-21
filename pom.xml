@@ -20,39 +20,41 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
                     <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>com.gensler.emailsolrloader.App</mainClass>
-                            <classpathPrefix>lib/</classpathPrefix>                      
-                        </manifest>
+                      <manifest>
+                          <addClasspath>true</addClasspath>
+                          <mainClass>com.gensler.emailsolrloader.App</mainClass>
+                          <classpathPrefix>lib/</classpathPrefix>                      
+                    </manifest>
                     </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.5.1</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeScope></includeScope>
-                            <outputDirectory>${project.build.directory}/lib/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+                  </configuration>
+              </plugin>
 
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.5.1</version>
+                    <executions>
+                      <execution>
+                            <id>copy-dependencies</id>
+                            <phase>package</phase>
+                            <goals>
+                                    <goal>copy-dependencies</goal>
+                            </goals>
+                            <configuration>
+                                    <includeScope></includeScope>
+                                    <outputDirectory>${project.build.directory}/lib/</outputDirectory>
+                            </configuration>
+                      </execution>
+                     </executions>
+		</plugin>
+                        
         </plugins>
     </build>
     <properties>
@@ -89,6 +91,24 @@
           <groupId>org.apache.solr</groupId>
           <artifactId>solr-solrj</artifactId>
           <version>4.10.0</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>3.9</version>
+        </dependency>
+        
+        <dependency>
+          <groupId>com.auxilii</groupId>
+          <artifactId>msgparser</artifactId>
+          <version>1.12</version>
         </dependency>
   </dependencies>
 </project>

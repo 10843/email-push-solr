@@ -15,26 +15,18 @@ import javax.mail.MessagingException;
 public class App 
 {
     public static SolrEmailInsert solrServer = new SolrEmailInsert();
+    public static Long filesFound = 0L;
+    public static Long filesInserted = 0L;
     
     public static void main( String[] args ) throws MessagingException, FileNotFoundException
     {
 
-    //    SolrEmailInsert solrServer = new SolrEmailInsert();
-//        File file = new File("/Users/10843/EmailHistory/2014-05/attachments.eml");
-//        try {
-//            MimeEmailParser parser = new MimeEmailParser(file);
-//            Email email = parser.getEmail();
-//            solrServer.addEmailToIndex(email);
-//            
-//        } catch (IOException ex) {
-//            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-//        }
         
         File root = new File("/Users/10843/EmailHistory/");
         
         processFile(root);
         
-        
+        System.out.println(" Files inserted " + filesInserted + "Files found " + filesFound);
         
         
     }
@@ -45,23 +37,47 @@ public class App
             if (file.isDirectory()){
                 File[] listFiles = file.listFiles();
                 System.out.println(file.getName() + " " + listFiles.length);
+                filesFound += listFiles.length;
                 for(int i = 0; i < listFiles.length; i++){
                     processFile(listFiles[i]);
                 }
             }else{
-                try {
-                    MimeEmailParser parser = new MimeEmailParser(file);
-                    Email email = parser.getEmail();
-                    solrServer.addEmailToIndex(email);
-                } catch (FileNotFoundException ex) {
-                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (MessagingException ex) {
-                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException ex) {
-                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                if (file.getName().endsWith("eml")){
+                    try {
+                        MimeEmailParser parser = new MimeEmailParser(file);
+                        Email email = parser.getEmail();
+                        solrServer.addEmailToIndex(email);
+                        filesInserted++;
+                    } catch (FileNotFoundException ex) {
+                        Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, parseError(ex));
+                    } catch (MessagingException ex) {
+                        Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, parseError(ex));
+                    } catch (IOException ex) {
+                        Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, parseError(ex));
+                    }
             
+                } else {
+                    if (file.getName().endsWith("msg")){
+                        try {
+                            MsgEmailParser parser = new MsgEmailParser(file);
+                            Email email = parser.getEmail();
+                            solrServer.addEmailToIndex(email);
+                            filesInserted++;
+                        } catch (IOException ex) {
+                            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, parseError(ex));
+                        }
+                        
+                    }
+                }
             }
         }
+    }
+
+    private static String parseError(Exception ex){
+        String[] errors = ex.getMessage().split("\n");
+        String error = "";
+        error = errors[0];
+        return error;
+        
     }
 }

@@ -40,6 +40,7 @@ public class SolrEmailInsert {
         doc.addField("subject",email.getSubject());
         doc.addField("message",email.getMessage());
         doc.addField("receive_date",email.getReceive_date());
+        doc.addField("has_attachements", email.getHasAttachment());
         
         try {
             UpdateResponse response = solr.add(doc);
