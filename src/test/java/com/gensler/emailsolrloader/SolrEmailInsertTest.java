@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
@@ -40,6 +41,7 @@ public class SolrEmailInsertTest {
      * Test of addEmailToIndex method, of class SolrEmailInsert.
      */
     @Test
+    @Ignore
     public void testAddEmailToIndex() {
         System.out.println("addEmailToIndex");
         Email email = new Email();

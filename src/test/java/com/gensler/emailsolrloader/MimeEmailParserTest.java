@@ -49,8 +49,8 @@ public class MimeEmailParserTest {
     @Test
     public void testGetEmailWAttachments() throws FileNotFoundException, MessagingException, IOException {
         System.out.println("getEmailWAttachments");
-        
-        File file = new File("/Users/10843/EmailHistory/2014-05/attachments.eml");
+        //put file into project
+        File file = new File("/Users/10843/Documents/EmailHistory/2014-05/attachments.eml");
         
         MimeEmailParser instance = new MimeEmailParser(file);
         
@@ -79,7 +79,7 @@ public class MimeEmailParserTest {
     public void testGetEmail() throws FileNotFoundException, MessagingException, IOException {
         System.out.println("getEmail");
         
-        File file = new File("/Users/10843/EmailHistory/2014-01/sorry.eml");
+        File file = new File("/Users/10843/Documents/EmailHistory/2014-01/sorry.eml");
         
         MimeEmailParser instance = new MimeEmailParser(file);
         
@@ -99,4 +99,29 @@ public class MimeEmailParserTest {
         //fail("The test case is a prototype.");
     }
 
+    @Test
+    public void testGetEmailWWonkyDate() throws FileNotFoundException, MessagingException, IOException {
+        System.out.println("getEmail");
+        
+        File file = new File("/Users/10843/Documents/EmailHistory/2015-11/REMINDER-  Scarborough Citizen Cabinet Survey.eml");
+        
+        MimeEmailParser instance = new MimeEmailParser(file);
+        
+        Email expResult  = new Email();
+        
+        expResult.setId("<8d27a573-e2a7-49da-9eb5-937ab9139a2b@BN1AFFO11FD012.protection.gbl>");
+        expResult.setSender("Scarborough Study");
+        expResult.setSubject("REMINDER:  Scarborough Citizen Cabinet Survey boundary=\"--boundary_45865_09121867-f21f-472b-a06d-508d4ec8f42a\"");
+        
+        expResult.addRecipient_to("ERIC_THEIS@GENSLER.COM");
+
+        expResult.setReceive_date(new Date(1446497603000L));
+        
+        Email result = instance.getEmail();
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        //fail("The test case is a prototype.");
+    }
+
+    
 }

@@ -46,7 +46,7 @@ public class MsgEmailParserTest {
     public void testGetEmail() throws IOException {
         System.out.println("getEmail");
         
-        File file = new File("/Users/10843/EmailHistory/2012-05/Your account has been created.msg");
+        File file = new File("/Users/10843/Documents/EmailHistory/2012-05/Your account has been created.msg");
         
         MsgEmailParser instance = new MsgEmailParser(file);
         
