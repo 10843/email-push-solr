@@ -35,56 +35,58 @@ import javax.mail.internet.MimeMessage;
 public final class MimeEmailParser {
     private Email email;
     
-    public MimeEmailParser(File file) throws FileNotFoundException, MessagingException, IOException{
-        email = new Email();
-        
-        email.setFilePath(file.getAbsolutePath());
-        InputStream is = new FileInputStream(file);
-
-        MimeMessage message = new MimeMessage(Session.getDefaultInstance(System.getProperties()),is);
-        String id = message.getMessageID();
-        email.setId(id);
-
-        Enumeration<?> headers =  message.getAllHeaders();
-        Map<String, String> headerMap = convertHeadersToMap(headers);
-        
-        
-        String from = extractFieldFromHeaderMap(headerMap,"From");
-        email.setSender(extractNameFromAddress(from));
-        
-        String subject = message.getSubject();
-        email.setSubject(subject);
-
-        if (message.getContentType().contains("text/plain")){
-            email.setMessage(message.getContent().toString());
-        }else{
-            if(message.getContentType().contains("multipart")){
-            javax.mail.internet.MimeMultipart body = (javax.mail.internet.MimeMultipart) message.getContent();;
-            for (int i = 0; i < body.getCount(); i++){
-                if (body.getBodyPart(i).getContentType().contains("text/plain")){
-                    email.setMessage(body.getBodyPart(i).getContent().toString());
-                }        
-            }
+    public MimeEmailParser(File file){
+        InputStream is = null;
+        try {
+            email = new Email();
+            email.setFilePath(file.getAbsolutePath());
+            is = new FileInputStream(file);
+            MimeMessage message = new MimeMessage(Session.getDefaultInstance(System.getProperties()),is);
+            String id = message.getMessageID();
+            email.setId(id);
+            Enumeration<?> headers =  message.getAllHeaders();
+            Map<String, String> headerMap = convertHeadersToMap(headers);
+            String from = extractFieldFromHeaderMap(headerMap,"From");
+            email.setSender(extractNameFromAddress(from));
+            String subject = message.getSubject();
+            email.setSubject(subject);
+            if (message.getContentType().contains("text/plain")){
+                email.setMessage(message.getContent().toString());
             }else{
-                System.out.println(file.getName());
-                System.out.println(message.getContentType());
-
+                if(message.getContentType().contains("multipart")){
+                    javax.mail.internet.MimeMultipart body = (javax.mail.internet.MimeMultipart) message.getContent();;
+                    for (int i = 0; i < body.getCount(); i++){
+                        if (body.getBodyPart(i).getContentType().contains("text/plain")){
+                            email.setMessage(body.getBodyPart(i).getContent().toString());
+                        }
+                    }
+                }else{
+                    System.out.println(file.getName());
+                    System.out.println(message.getContentType());
+                    
+                }
+            }   Address[] to = message.getRecipients(Message.RecipientType.TO);
+            email.setRecipient_to(convertAddressArrayToList(to));
+            Address[] cc = message.getRecipients(Message.RecipientType.CC);
+            email.setRecipient_cc(convertAddressArrayToList(cc));
+            String attachment_header = extractFieldFromHeaderMap(headerMap,"X-MS-Has-Attach");
+            if (attachment_header != null && attachment_header.equals("yes")){
+            email.setHasAttachment(Boolean.TRUE);
+            }   String received_header = extractFieldFromHeaderMap(headerMap,"Received");
+            email.setReceive_date(extractDateFromRFCDate(received_header));
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MimeEmailParser.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MessagingException ex) {
+            Logger.getLogger(MimeEmailParser.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MimeEmailParser.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                is.close();
+            } catch (IOException ex) {
+                Logger.getLogger(MimeEmailParser.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
-        Address[] to = message.getRecipients(Message.RecipientType.TO);
-        email.setRecipient_to(convertAddressArrayToList(to));
-        Address[] cc = message.getRecipients(Message.RecipientType.CC);
-        email.setRecipient_cc(convertAddressArrayToList(cc));
-        
-        String attachment_header = extractFieldFromHeaderMap(headerMap,"X-MS-Has-Attach");
-        if (attachment_header != null && attachment_header.equals("yes")){
-            email.setHasAttachment(Boolean.TRUE);
-        }
-
-        String received_header = extractFieldFromHeaderMap(headerMap,"Received");
-        
-        email.setReceive_date(extractDateFromRFCDate(received_header));
         
     }
     
@@ -92,8 +94,9 @@ public final class MimeEmailParser {
 //        String rfcDate = "Sat, 13 Mar 2010 11:29:05 -0800";
         String rfcDate = null;               
         Date javaDate = null;
-        String regPattern = "(?:(Sun|Mon|Tue|Wed|Thu|Fri|Sat),\\s+)?(\\d{1,2})\\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+(\\d{4} \\d{1,2}:\\d{1,2}:\\d{1,2})\\s+(-|\\+)\\d{4}";
-
+        //String regPattern = "(?:(Sun|Mon|Tue|Wed|Thu|Fri|Sat),\\s+)?(\\d{1,2})\\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+(\\d{4} \\d{1,2}:\\d{1,2}:\\d{1,2})\\s+(-|\\+)\\d{4}";
+        String regPattern = "(\\d{1,2})\\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+(\\d{4} \\d{1,2}:\\d{1,2}:\\d{1,2})\\s+(-|\\+)\\d{4}";
+        
         if (received_header != null){
             Pattern p = Pattern.compile(regPattern);
             Matcher m = p.matcher(received_header);
@@ -101,7 +104,8 @@ public final class MimeEmailParser {
                 rfcDate = m.group();
             }
 
-            String datePattern = "EEE, dd MMM yyyy HH:mm:ss Z";
+            //String datePattern = "EEE, dd MMM yyyy HH:mm:ss Z";
+            String datePattern = "dd MMM yyyy HH:mm:ss Z";
             SimpleDateFormat format = new SimpleDateFormat(datePattern);
             if (rfcDate != null){
                 try {
@@ -127,31 +131,6 @@ public final class MimeEmailParser {
         return headerMap.get(headerName);
     }
    
-    
-//    protected String extractFieldFromHeaders(Enumeration<?> headers, String headerName){
-//        String value = "";
-//        int count = 0;
-//        
-//        while (headers.hasMoreElements()){
-//            Header header = (Header)headers.nextElement();
-//
-//            if (headerName.equals("Received")){
-//                System.out.print(count);
-//                System.out.print(header.getName());
-//                System.out.print(" | ");
-//                System.out.println(header.getValue());
-//            }
-//
-//            if (headerName.equals(header.getName())){
-//                value = header.getValue();
-//                break;
-//            }
-//            count++;
-//        }
-//        
-//        return value;
-//    }
-    
     protected String extractNameFromAddress(String address){
         if (address.indexOf("<") > 0){
             return address.substring(0, address.indexOf("<")-1);

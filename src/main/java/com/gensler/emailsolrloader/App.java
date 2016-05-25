@@ -20,14 +20,15 @@ public class App
     
     public static void main( String[] args ) throws MessagingException, FileNotFoundException
     {
-
+        if (args.length > 0){
+            String rootFileName = args[0];
+                
+            File root = new File(rootFileName);
         
-        File root = new File("/Users/10843/EmailHistory/");
+            processFile(root);
         
-        processFile(root);
-        
-        System.out.println(" Files inserted " + filesInserted + "Files found " + filesFound);
-        
+            System.out.println(" Files inserted " + filesInserted + " Files found " + filesFound);
+        }
         
     }
     
@@ -43,29 +44,17 @@ public class App
                 }
             }else{
                 if (file.getName().endsWith("eml")){
-                    try {
-                        MimeEmailParser parser = new MimeEmailParser(file);
-                        Email email = parser.getEmail();
-                        solrServer.addEmailToIndex(email);
-                        filesInserted++;
-                    } catch (FileNotFoundException ex) {
-                        Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, parseError(ex));
-                    } catch (MessagingException ex) {
-                        Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, parseError(ex));
-                    } catch (IOException ex) {
-                        Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, parseError(ex));
-                    }
+                    MimeEmailParser parser = new MimeEmailParser(file);
+                    Email email = parser.getEmail();
+                    //solrServer.addEmailToIndex(email);
+                    filesInserted++;
             
                 } else {
                     if (file.getName().endsWith("msg")){
-                        try {
-                            MsgEmailParser parser = new MsgEmailParser(file);
-                            Email email = parser.getEmail();
-                            solrServer.addEmailToIndex(email);
-                            filesInserted++;
-                        } catch (IOException ex) {
-                            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, parseError(ex));
-                        }
+                        MsgEmailParser parser = new MsgEmailParser(file);
+                        Email email = parser.getEmail();
+                        //solrServer.addEmailToIndex(email);
+                        filesInserted++;
                         
                     }
                 }
@@ -73,11 +62,4 @@ public class App
         }
     }
 
-    private static String parseError(Exception ex){
-        String[] errors = ex.getMessage().split("\n");
-        String error = "";
-        error = errors[0];
-        return error;
-        
-    }
 }
