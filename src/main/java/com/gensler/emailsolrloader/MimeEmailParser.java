@@ -26,6 +26,7 @@ import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.MimeMessage;
 
 /**
@@ -42,14 +43,19 @@ public final class MimeEmailParser {
             email.setFilePath(file.getAbsolutePath());
             is = new FileInputStream(file);
             MimeMessage message = new MimeMessage(Session.getDefaultInstance(System.getProperties()),is);
+            
             String id = message.getMessageID();
             email.setId(id);
+            
             Enumeration<?> headers =  message.getAllHeaders();
             Map<String, String> headerMap = convertHeadersToMap(headers);
+            
             String from = extractFieldFromHeaderMap(headerMap,"From");
             email.setSender(extractNameFromAddress(from));
+            
             String subject = message.getSubject();
             email.setSubject(subject);
+            
             if (message.getContentType().contains("text/plain")){
                 email.setMessage(message.getContent().toString());
             }else{
@@ -65,26 +71,39 @@ public final class MimeEmailParser {
                     System.out.println(message.getContentType());
                     
                 }
-            }   Address[] to = message.getRecipients(Message.RecipientType.TO);
-            email.setRecipient_to(convertAddressArrayToList(to));
-            Address[] cc = message.getRecipients(Message.RecipientType.CC);
-            email.setRecipient_cc(convertAddressArrayToList(cc));
+            }
+            
+            try {
+                Address[] to = message.getRecipients(Message.RecipientType.TO);
+                email.setRecipient_to(convertAddressArrayToList(to));
+            } catch (AddressException ex){
+                Logger.getLogger(MimeEmailParser.class.getName()).log(Level.WARNING, file.getAbsolutePath(), ex);
+            }
+
+            try {
+                Address[] cc = message.getRecipients(Message.RecipientType.CC);
+                email.setRecipient_cc(convertAddressArrayToList(cc));
+            } catch (AddressException ex){
+                Logger.getLogger(MimeEmailParser.class.getName()).log(Level.WARNING, file.getAbsolutePath(), ex);
+            }
+            
             String attachment_header = extractFieldFromHeaderMap(headerMap,"X-MS-Has-Attach");
             if (attachment_header != null && attachment_header.equals("yes")){
-            email.setHasAttachment(Boolean.TRUE);
-            }   String received_header = extractFieldFromHeaderMap(headerMap,"Received");
+                email.setHasAttachment(Boolean.TRUE);
+            }   
+            
+            String received_header = extractFieldFromHeaderMap(headerMap,"Received");
             email.setReceive_date(extractDateFromRFCDate(received_header));
+            
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(MimeEmailParser.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (MessagingException ex) {
-            Logger.getLogger(MimeEmailParser.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(MimeEmailParser.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MimeEmailParser.class.getName()).log(Level.SEVERE, file.getAbsolutePath(), ex);
+        } catch (MessagingException | IOException ex) {
+            Logger.getLogger(MimeEmailParser.class.getName()).log(Level.SEVERE, file.getAbsolutePath(), ex);
         } finally {
             try {
                 is.close();
             } catch (IOException ex) {
-                Logger.getLogger(MimeEmailParser.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(MimeEmailParser.class.getName()).log(Level.SEVERE, file.getAbsolutePath(), ex);
             }
         }
         
@@ -132,18 +151,26 @@ public final class MimeEmailParser {
     }
    
     protected String extractNameFromAddress(String address){
-        if (address.indexOf("<") > 0){
-            return address.substring(0, address.indexOf("<")-1);
+        if (address != null){
+            if (address.indexOf("<") > 0){
+                return address.substring(0, address.indexOf("<")-1);
+            }else{
+                return address;
+            }
         }else{
-            return address;
+            return "";
         }
     }
     
     protected String extractEmailFromAddress(String address){
-        if (address.indexOf("<") > 0){
-            return address.substring(address.indexOf("<")+1,address.indexOf(">"));
+        if (address != null){
+            if (address.indexOf("<") > 0){
+                return address.substring(address.indexOf("<")+1,address.indexOf(">"));
+            }else{
+                return address;
+            }
         }else{
-            return address;
+            return "";
         }
     }
 

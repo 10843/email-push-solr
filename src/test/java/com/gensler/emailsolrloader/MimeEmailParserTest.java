@@ -101,7 +101,7 @@ public class MimeEmailParserTest {
 
     @Test
     public void testGetEmailWWonkyDate() throws FileNotFoundException, MessagingException, IOException {
-        System.out.println("getEmail");
+        System.out.println("getEmailWWonkyDate");
         
         File file = new File("/Users/10843/Documents/EmailHistory/2015-11/REMINDER-  Scarborough Citizen Cabinet Survey.eml");
         
@@ -123,5 +123,30 @@ public class MimeEmailParserTest {
         //fail("The test case is a prototype.");
     }
 
+    @Test
+    public void testGetEmailWWonkyTo() throws FileNotFoundException, MessagingException, IOException {
+        System.out.println("getEmailWWonkyTo");
+        
+        File file = new File("/Users/10843/Documents/EmailHistory/2014-06/FW- Genisys - 16-32Gb RAM.eml");
+        
+        MimeEmailParser instance = new MimeEmailParser(file);
+        
+        Email expResult  = new Email();
+        
+        expResult.setId("<145D87796EC1544197A317BBB7FB36D565F09426@fw98.gensler.ad>");
+        expResult.setSender("Will Meier");
+        expResult.setSubject("FW: Genisys - 16/32Gb RAM");
+        
+        // recipient in TO column has invalid characters in email address, will not be added to email
+        // expResult.addRecipient_to("'appsdevops+gensler.com@yammer.com'");
+
+        expResult.setReceive_date(new Date(1446497603000L));
+        
+        Email result = instance.getEmail();
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        //fail("The test case is a prototype.");
+    }
+    // /Users/10843/Documents/EmailHistory/2015-08/Announcement.eml
     
 }

@@ -20,7 +20,7 @@ import javax.mail.Message;
  *
  * @author Eric Theis <eric_theis@gensler.com>
  */
-public class MsgEmailParser {
+public final class MsgEmailParser {
     private Email email;
 
     public MsgEmailParser(File file) {
@@ -38,12 +38,11 @@ public class MsgEmailParser {
             email.setSubject(msg.getSubject());
             email.setMessage(msg.getBodyText());
             
-            List<RecipientEntry> recipient_to = msg.getRecipients();
-            List<String> to = new ArrayList<>();
-            for(RecipientEntry recipient : recipient_to){
-                to.add(recipient.getToName());
-            }
-            email.setRecipient_to(to);
+            List<RecipientEntry> recipientsTo = msg.getRecipients();
+            email.setRecipient_to(extractStringListFromRecipientList(recipientsTo));
+            
+            List<RecipientEntry> recipientsCc = msg.getCcRecipients();
+            email.setRecipient_cc(extractStringListFromRecipientList(recipientsCc));
             
             
             List<Attachment> attachments = msg.getAttachments();
@@ -53,17 +52,25 @@ public class MsgEmailParser {
             
             email.setReceive_date(msg.getDate());
         } catch (IOException ex) {
-            Logger.getLogger(MsgEmailParser.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MsgEmailParser.class.getName()).log(Level.SEVERE, file.getAbsolutePath(), ex);
         } catch (UnsupportedOperationException ex) {
-            Logger.getLogger(MsgEmailParser.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (Exception ex) {
-            Logger.getLogger(MsgEmailParser.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MsgEmailParser.class.getName()).log(Level.SEVERE, file.getAbsolutePath(), ex);
+        } catch (Throwable ex) {
+            Logger.getLogger(MsgEmailParser.class.getName()).log(Level.SEVERE, file.getAbsolutePath(), ex);
         }
     }
     
     
     public Email getEmail(){
         return email;
+    }
+    
+    protected List<String> extractStringListFromRecipientList(List<RecipientEntry> recipients){
+        List<String> list = new ArrayList<>();
+        for(RecipientEntry recipient : recipients){
+            list.add(recipient.getToName());
+        }
+        return list;
     }
     
 }
