@@ -4,7 +4,7 @@
 
   <groupId>com.gensler</groupId>
   <artifactId>email-push-solr</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>email-push-solr</name>
@@ -106,9 +106,9 @@
         </dependency>
         
         <dependency>
-          <groupId>com.auxilii</groupId>
+          <groupId>com.auxilii.msgparser</groupId>
           <artifactId>msgparser</artifactId>
-          <version>1.12</version>
+          <version>1.1.15</version>
         </dependency>
   </dependencies>
 </project>
